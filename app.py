@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
+# main.py
+from utils.find_image import find_image     
+
 
 app = Flask(__name__)
 CORS(app)
@@ -32,6 +35,12 @@ def upload_image():
     filename = secure_filename(file.filename)
     if not filename:
         return jsonify({"error": "Invalid filename"}), 400
+
+    new_file_index = find_image(filename, images)
+
+    if new_file_index != -1:
+        return jsonify({"error": "File already exists"}), 400
+    
     
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
