@@ -34,14 +34,13 @@ def save_images():
 
 # Allowed image extensions
 
-Allowed_extensions = {'png', 'jpg', 'jpeg'}
+allowed_extensions = {'png', 'jpg', 'jpeg'}
+
+def extension_allow(filename):
+    return ("." in filename and filename.rsplit(".", 1)[1].lower() in allowed_extensions
+            )
 
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-images = []
 
 @app.route('/')
 def index():
@@ -63,6 +62,11 @@ def upload_image():
     filename = secure_filename(file.filename)
     if not filename:
         return jsonify({"error": "Invalid filename"}), 400
+
+    if not extension_allow(filename):
+        return jsonify({"error": "File type not allowed"
+    }), 400
+    
 
     new_file_index = find_image(filename, images)
     if new_file_index != -1:
