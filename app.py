@@ -2,12 +2,40 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
+import json
 # main.py
 from utils.find_image import find_image     
 
 
 app = Flask(__name__)
 CORS(app)
+
+# upload folder 
+
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# json file for permanant storage
+
+Images_file = os.path.join(app.root_path, "images.json")
+
+if os.path.exists(Images_file):
+    with open(Images_file, 'r') as f:
+        images = json.load(f)
+else:
+    images = []
+
+# save images to json file
+
+def save_images():
+    with open(Images_file, 'w') as f:
+        json.dump(images, f, indent=4)
+
+# Allowed image extensions
+
+Allowed_extensions = {'png', 'jpg', 'jpeg'}
+
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -37,7 +65,6 @@ def upload_image():
         return jsonify({"error": "Invalid filename"}), 400
 
     new_file_index = find_image(filename, images)
-
     if new_file_index != -1:
         return jsonify({"error": "File already exists"}), 400
     
