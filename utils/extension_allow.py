@@ -8,6 +8,4 @@ def allowed_file(filename):
 
 
 
-    if not extension_allow(filename):
-        return jsonify({"error": "File type not allowed"
-        )},
+    

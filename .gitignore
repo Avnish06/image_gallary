@@ -1,0 +1,6 @@
+__pycache__
+.pytest_cache
+.venv
+utils/__pycache__
+static/uploads
+images.json

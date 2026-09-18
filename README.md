@@ -1,5 +1,10 @@
 # Image Gallery
 
+## Tools used
+Flask>=3.0,<4.0
+flask-cors>=4.0,<6.0
+pytest>=8.0,<9.0 
+
 ## Fresher Assignment
 
 Build a small Python image gallery application. The goal is to demonstrate your ability to design a clean Python project, handle files safely, expose useful functionality, and write maintainable code.
