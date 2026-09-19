@@ -5,7 +5,7 @@ from utils.find_image import find_image
 import os 
 import json
 from utils.delete_image import delete_image
- 
+from utils.search_image import search_image
  
 app = Flask(__name__) 
 CORS(app) 
@@ -130,6 +130,28 @@ def upload_image():
             "url": image_url
         }
         }), 201 
+
+
+
+@app.route('/search', methods=['GET'])
+def search_images():
+
+
+    
+
+    search_name = request.args.get("name","").strip()
+
+    if not search_name:
+        return jsonify({"error": "Please enter image name"}), 400
+    results = search_image(
+    search_name,
+    images
+)
+    return jsonify(results), 200
+
+
+
+
 
 
 
