@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from utils.find_image import find_image
 import os 
 import json
+from utils.delete_image import delete_image
  
  
 app = Flask(__name__) 
@@ -129,6 +130,32 @@ def upload_image():
             "url": image_url
         }
         }), 201 
+
+
+
+@app.route('/delete/<filename>', methods=['DELETE'])
+def delete_image_route(filename):
+
+    filename = secure_filename(filename)
+
+    deleted = delete_image(
+        filename,
+        images,
+        app.config['UPLOAD_FOLDER']
+    )
+
+    if not deleted:
+        return jsonify({
+            "error": "Image not found"
+        }), 404
+
+    save_images()
+
+    return jsonify({
+        "message": "Image deleted successfully"
+    }), 200
+
+
  
 if __name__ == '__main__':
     app.run(debug=True, port=5005) 
