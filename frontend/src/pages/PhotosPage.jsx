@@ -70,7 +70,7 @@ function PhotosPage() {
   const handleConfirmDelete = async () => {
     if (!pendingDelete) return
     try {
-      await remove(pendingDelete.id)
+      await remove(pendingDelete.original_filename || pendingDelete.title)
       setPendingDelete(null)
     } catch (err) {
       setDeleteError(err.response?.data?.error || err.message || 'Failed to delete image')
@@ -107,7 +107,7 @@ function PhotosPage() {
           </TableHead>
           <TableBody>
             {visibleImages.map((image) => (
-              <TableRow key={image.id} hover>
+              <TableRow key={image.original_filename || image.title} hover>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Avatar

@@ -47,12 +47,14 @@ export function ImagesProvider({ children }) {
     }
   }, [])
 
-  const remove = useCallback(async (imageId) => {
-    setDeletingId(imageId)
+  const remove = useCallback(async (filename) => {
+    setDeletingId(filename)
     setError(null)
     try {
-      await deleteImageRequest(imageId)
-      setImages((prev) => prev.filter((image) => String(image.id) !== String(imageId)))
+      await deleteImageRequest(filename)
+      setImages((prev) =>
+        prev.filter((image) => (image.original_filename || image.title) !== filename),
+      )
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to delete image')
       throw err
