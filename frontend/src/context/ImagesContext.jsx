@@ -47,14 +47,12 @@ export function ImagesProvider({ children }) {
     }
   }, [])
 
-  const remove = useCallback(async (filename) => {
-    setDeletingId(filename)
+  const remove = useCallback(async (id) => {
+    setDeletingId(id)
     setError(null)
     try {
-      await deleteImageRequest(filename)
-      setImages((prev) =>
-        prev.filter((image) => (image.original_filename || image.title) !== filename),
-      )
+      await deleteImageRequest(id)
+      setImages((prev) => prev.filter((image) => image.id !== id))
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to delete image')
       throw err
@@ -67,7 +65,7 @@ export function ImagesProvider({ children }) {
     const query = searchQuery.trim().toLowerCase()
     if (!query) return images
     return images.filter((image) =>
-      (image.original_filename || image.title || '').toLowerCase().includes(query),
+      (image.original_filename || '').toLowerCase().includes(query),
     )
   }, [images, searchQuery])
 

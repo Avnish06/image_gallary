@@ -19,7 +19,7 @@ export const uploadImage = async (file) => {
   return data
 }
 
-export const deleteImage = async (filename) => {
-  const { data } = await client.delete(`/delete/${encodeURIComponent(filename)}`)
+export const deleteImage = async (id) => {
+  const { data } = await client.delete(`/images/${id}`)
   return data
 }
