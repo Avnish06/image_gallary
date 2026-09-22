@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from datetime import datetime, timezone
-from uuid import uuid4
 import os
 import json
 from utils.extension_allow import allowed_file
@@ -10,7 +8,7 @@ from utils.delete_image import delete_image
 from utils.search_image import search_image
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://localhost:3000"])
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -40,14 +38,17 @@ def next_image_id():
     return max(int(image_id) for image_id in images) + 1
 
 
-def serialize_image(image):
+def stored_filename(image_id, filename):
+    extension = filename.rsplit(".", 1)[1].lower()
+    return f"{image_id}.{extension}"
+
+
+def serialize_image(image_id, image):
     return {
-        "id": image["id"],
-        "original_filename": image["original_filename"],
-        "file_type": image["file_type"],
+        "id": int(image_id),
+        "filename": image["filename"],
         "size": image["size"],
-        "uploaded_at": image["uploaded_at"],
-        "url": f"/static/uploads/{image['stored_filename']}",
+        "url": f"/static/uploads/{stored_filename(image_id, image['filename'])}",
     }
 
 
@@ -58,8 +59,8 @@ def index():
 
 @app.route('/images', methods=['GET'])
 def get_images():
-    ordered = sorted(images.values(), key=lambda image: image["id"], reverse=True)
-    return jsonify([serialize_image(image) for image in ordered])
+    ordered = sorted(images.items(), key=lambda item: int(item[0]), reverse=True)
+    return jsonify([serialize_image(image_id, image) for image_id, image in ordered])
 
 
 @app.route('/images', methods=['POST'])
@@ -81,9 +82,11 @@ def upload_image():
     if not allowed_file(original_filename):
         return jsonify({"error": "File type not allowed"}), 400
 
-    extension = original_filename.rsplit(".", 1)[1].lower()
-    stored_filename = f"{uuid4().hex}.{extension}"
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], stored_filename)
+    image_id = next_image_id()
+    filepath = os.path.join(
+        app.config['UPLOAD_FOLDER'],
+        stored_filename(image_id, original_filename),
+    )
 
     file.save(filepath)
 
@@ -93,18 +96,14 @@ def upload_image():
         return jsonify({"error": "Uploaded file is empty"}), 400
 
     image = {
-        "id": next_image_id(),
-        "original_filename": original_filename,
-        "stored_filename": stored_filename,
-        "file_type": file.mimetype or "application/octet-stream",
+        "filename": original_filename,
         "size": size,
-        "uploaded_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    images[str(image["id"])] = image
+    images[str(image_id)] = image
     save_images()
 
-    return jsonify(serialize_image(image)), 201
+    return jsonify(serialize_image(image_id, image)), 201
 
 
 @app.route('/images/search', methods=['GET'])
@@ -117,10 +116,10 @@ def search_images():
 
     results = sorted(
         search_image(search_name, images),
-        key=lambda image: image["id"],
+        key=lambda item: int(item[0]),
         reverse=True,
     )
-    return jsonify([serialize_image(image) for image in results]), 200
+    return jsonify([serialize_image(image_id, image) for image_id, image in results]), 200
 
 
 @app.route('/images/<int:image_id>', methods=['DELETE'])

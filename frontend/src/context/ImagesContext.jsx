@@ -65,7 +65,7 @@ export function ImagesProvider({ children }) {
     const query = searchQuery.trim().toLowerCase()
     if (!query) return images
     return images.filter((image) =>
-      (image.original_filename || '').toLowerCase().includes(query),
+      (image.filename || '').toLowerCase().includes(query),
     )
   }, [images, searchQuery])
 

@@ -13,10 +13,7 @@ export function formatFileSize(bytes) {
 }
 
 export function getFileFormat(image) {
-  const name = image.original_filename || ''
+  const name = image.filename || ''
   const extension = name.includes('.') ? name.split('.').pop() : ''
-  if (extension) return extension.toUpperCase()
-
-  const mime = image.file_type || ''
-  return mime.includes('/') ? mime.split('/').pop().toUpperCase() : mime.toUpperCase() || '—'
+  return extension ? extension.toUpperCase() : '—'
 }

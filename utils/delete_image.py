@@ -8,7 +8,8 @@ def delete_image(image_id, images, upload_folder):
     if entry is None:
         return False
 
-    filepath = os.path.join(upload_folder, entry["stored_filename"])
+    extension = entry["filename"].rsplit(".", 1)[1].lower()
+    filepath = os.path.join(upload_folder, f"{image_id}.{extension}")
 
     if os.path.exists(filepath):
         os.remove(filepath)
